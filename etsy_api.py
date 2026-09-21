@@ -13,38 +13,50 @@ class EtsyAPI:
         self.api_key = Config.ETSY_API_KEY
         self.shop_id = Config.ETSY_SHOP_ID
         self.access_token = None
-        self.refresh_token = None
+        self.refresh_token = os.getenv('ETSY_REFRESH_TOKEN')  # Load from GitHub Secrets
         self.token_expires_at = None
         self._load_and_refresh_token()
     
     def _load_and_refresh_token(self):
-        """Load token from file and refresh if expired"""
-        # Try to load from etsy_token.json first
-        if os.path.exists('etsy_token.json'):
-            try:
-                with open('etsy_token.json', 'r') as f:
-                    token_data = json.load(f)
-                
-                self.access_token = token_data.get('access_token')
-                self.refresh_token = token_data.get('refresh_token')
-                
-                # Calculate expiration time
-                expires_in = token_data.get('expires_in', 3600)
-                self.token_expires_at = datetime.now() + timedelta(seconds=expires_in)
-                
-                # Check if token needs refresh
-                if self._is_token_expired():
-                    print("Access token expired, refreshing...")
-                    self._refresh_access_token()
-                
-                return
-            except Exception as e:
-                print(f"Error loading token from file: {e}")
-        
-        # Fallback to config
-        self.access_token = Config.ETSY_ACCESS_TOKEN
-        # Set default expiration (1 hour from now)
-        self.token_expires_at = datetime.now() + timedelta(hours=1)
+        """Load token from GitHub Secrets and refresh if expired"""
+        # Load refresh token from GitHub Secrets (for GitHub Actions)
+        # or from local file (for local development)
+        if self.refresh_token:
+            print("Using refresh token from GitHub Secrets")
+            # Calculate initial expiration (refresh tokens last 90 days)
+            self.token_expires_at = datetime.now() + timedelta(days=90)
+            
+            # Try to refresh immediately to get current access token
+            if self._is_token_expired():
+                print("Refreshing access token...")
+                self._refresh_access_token()
+        else:
+            # Fallback to local file for development
+            if os.path.exists('etsy_token.json'):
+                try:
+                    with open('etsy_token.json', 'r') as f:
+                        token_data = json.load(f)
+                    
+                    self.access_token = token_data.get('access_token')
+                    self.refresh_token = token_data.get('refresh_token')
+                    
+                    # Calculate expiration time
+                    expires_in = token_data.get('expires_in', 3600)
+                    self.token_expires_at = datetime.now() + timedelta(seconds=expires_in)
+                    
+                    # Check if token needs refresh
+                    if self._is_token_expired():
+                        print("Access token expired, refreshing...")
+                        self._refresh_access_token()
+                    
+                    return
+                except Exception as e:
+                    print(f"Error loading token from file: {e}")
+            
+            # Final fallback to config
+            self.access_token = Config.ETSY_ACCESS_TOKEN
+            # Set default expiration (1 hour from now)
+            self.token_expires_at = datetime.now() + timedelta(hours=1)
     
     def _is_token_expired(self) -> bool:
         """Check if the access token is expired or will expire soon"""

@@ -41,7 +41,7 @@ jobs:
         ETSY_API_KEY: ${{ secrets.ETSY_API_KEY }}
         ETSY_SHARED_SECRET: ${{ secrets.ETSY_SHARED_SECRET }}
         ETSY_SHOP_ID: ${{ secrets.ETSY_SHOP_ID }}
-        ETSY_ACCESS_TOKEN: ${{ secrets.ETSY_ACCESS_TOKEN }}
+        ETSY_REFRESH_TOKEN: ${{ secrets.ETSY_REFRESH_TOKEN }}
         ETSY_ACCESS_TOKEN_SECRET: ${{ secrets.ETSY_ACCESS_TOKEN_SECRET }}
         GOOGLE_SHEET_ID: ${{ secrets.GOOGLE_SHEET_ID }}
         SUPPLIER_EMAIL: ${{ secrets.SUPPLIER_EMAIL }}

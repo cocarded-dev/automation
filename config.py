@@ -8,8 +8,7 @@ class Config:
     ETSY_API_KEY = os.getenv('ETSY_API_KEY')
     ETSY_SHARED_SECRET = os.getenv('ETSY_SHARED_SECRET')
     ETSY_SHOP_ID = os.getenv('ETSY_SHOP_ID')
-    ETSY_ACCESS_TOKEN = os.getenv('ETSY_ACCESS_TOKEN')
-    ETSY_ACCESS_TOKEN_SECRET = os.getenv('ETSY_ACCESS_TOKEN_SECRET')
+    ETSY_REFRESH_TOKEN = os.getenv('ETSY_REFRESH_TOKEN')
     
     # Google Sheets
     GOOGLE_SHEET_ID = os.getenv('GOOGLE_SHEET_ID')
@@ -41,7 +40,7 @@ class Config:
     def validate(cls):
         required_fields = [
             'ETSY_API_KEY', 'ETSY_SHARED_SECRET', 'ETSY_SHOP_ID',
-            'ETSY_ACCESS_TOKEN', 'GOOGLE_SHEET_ID', 'SUPPLIER_EMAIL'
+            'ETSY_REFRESH_TOKEN', 'GOOGLE_SHEET_ID', 'SUPPLIER_EMAIL'
         ]
         
         missing = [field for field in required_fields if not getattr(cls, field)]
