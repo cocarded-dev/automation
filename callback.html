@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Etsy OAuth Callback</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 50px auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .success {
+            color: #28a745;
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .error {
+            color: #dc3545;
+            font-size: 18px;
+            margin-bottom: 20px;
+        }
+        .code-display {
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 4px;
+            padding: 15px;
+            margin: 20px 0;
+            word-break: break-all;
+            font-family: monospace;
+            font-size: 14px;
+        }
+        .instructions {
+            background-color: #e7f3ff;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 20px 0;
+        }
+        button {
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 5px;
+        }
+        button:hover {
+            background-color: #0b7dda;
+        }
+        .copy-button {
+            background-color: #28a745;
+        }
+        .copy-button:hover {
+            background-color: #218838;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Etsy OAuth Callback</h1>
+        
+        <div id="status"></div>
+        
+        <div id="code-section" style="display: none;">
+            <div class="success">Authorization Successful!</div>
+            
+            <div class="instructions">
+                <strong>Next Steps:</strong>
+                <ol>
+                    <li>Copy the authorization code below</li>
+                    <li>Run this command in your project directory: <code>python exchange_token.py</code></li>
+                    <li>Paste the authorization code when prompted</li>
+                </ol>
+            </div>
+            
+            <h3>Authorization Code:</h3>
+            <div class="code-display" id="auth-code"></div>
+            
+            <button class="copy-button" onclick="copyCode()">Copy Code</button>
+            <button onclick="goBack()">Go Back</button>
+        </div>
+        
+        <div id="error-section" style="display: none;">
+            <div class="error">Authorization Failed</div>
+            <div class="code-display" id="error-message"></div>
+            <button onclick="goBack()">Try Again</button>
+        </div>
+    </div>
+
+    <script>
+        // Parse URL parameters
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const error = urlParams.get('error');
+        const errorDescription = urlParams.get('error_description');
+        const state = urlParams.get('state');
+
+        if (code) {
+            // Success case
+            document.getElementById('status').innerHTML = '<div class="success">Authorization Successful!</div>';
+            document.getElementById('code-section').style.display = 'block';
+            document.getElementById('auth-code').textContent = code;
+            
+            if (state) {
+                document.getElementById('auth-code').innerHTML += '<br><br><strong>State:</strong> ' + state;
+            }
+        } else if (error) {
+            // Error case
+            document.getElementById('status').innerHTML = '<div class="error">Authorization Failed</div>';
+            document.getElementById('error-section').style.display = 'block';
+            
+            let errorMessage = '<strong>Error:</strong> ' + error;
+            if (errorDescription) {
+                errorMessage += '<br><strong>Description:</strong> ' + errorDescription;
+            }
+            if (state) {
+                errorMessage += '<br><strong>State:</strong> ' + state;
+            }
+            
+            document.getElementById('error-message').innerHTML = errorMessage;
+        } else {
+            // No code or error - might be direct access
+            document.getElementById('status').innerHTML = '<div class="error">No authorization code found</div>';
+            document.getElementById('error-section').style.display = 'block';
+            document.getElementById('error-message').innerHTML = 'This page should be accessed via Etsy OAuth redirect. If you reached this page directly, please start the OAuth process again.';
+        }
+
+        function copyCode() {
+            const codeText = document.getElementById('auth-code').textContent;
+            navigator.clipboard.writeText(codeText).then(() => {
+                alert('Authorization code copied to clipboard!');
+            }).catch(err => {
+                // Fallback for older browsers
+                const textArea = document.createElement('textarea');
+                textArea.value = codeText;
+                document.body.appendChild(textArea);
+                textArea.select();
+                document.execCommand('copy');
+                document.body.removeChild(textArea);
+                alert('Authorization code copied to clipboard!');
+            });
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</body>
+</html>
